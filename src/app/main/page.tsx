@@ -1,6 +1,22 @@
+'use client';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import BookTitleForm from '../components/BookTitleForm';
 
 export default function Home() {
+  const router = useRouter();
+
+  useEffect(() => {
+    fetch('http://localhost:3000/api/verify-token')
+      .then((res) => res.json())
+      .then((data) => {
+        if (!data.isValid) {
+          // トークンが無効ならログインページにリダイレクト
+          router.push('/');
+        }
+      });
+  }, []);
+
   return (
     <main>
       <div className='flex flex-col items-center  min-h-screen py-4 bg-gray-200 ml-4 mr-4'>

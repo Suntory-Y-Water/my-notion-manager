@@ -1,7 +1,31 @@
+'use client';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import LoginForm from './components/LoginForm';
+
 export default function Home() {
+  const router = useRouter();
+
+  useEffect(() => {
+    fetch('http://localhost:3000/api/verify-token')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.isValid) {
+          router.push('/main');
+        }
+      });
+  }, []);
+
   return (
-    <main className='flex min-h-screen flex-col items-center justify-between p-24'>
-      <h1>Hello World</h1>
+    <main>
+      <div className='flex flex-col items-center  min-h-screen py-4 bg-gray-200 ml-4 mr-4'>
+        <h1 className='text-3xl font-bold text-gray-700 mt-12 '>Personal BookNotion</h1>
+        <div className='w-full max-w-xl mt-8'>
+          <div className='w-full px-8 py-6 bg-white shadow-md rounded-lg'>
+            <LoginForm />
+          </div>
+        </div>
+      </div>
     </main>
   );
 }
