@@ -1,11 +1,45 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 const BookTitleForm = () => {
+  const [bookName, setBookName] = useState('');
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+
+    const formData = new FormData(event.target as HTMLFormElement);
+    const bookName = formData.get('bookname');
+
+    try {
+      const response = await fetch('http://localhost:3000/api/book', {
+        method: 'POST',
+        body: JSON.stringify({ bookName }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        alert('🎉The page has been created!');
+      } else {
+        alert(`😭Error : ${data.message}`);
+      }
+    } catch (error) {
+      alert('😠Communication error occurs');
+    }
+  };
+
   return (
-    <form className='font-sans mb-4 space-y-3'>
+    <form onSubmit={handleSubmit} className='font-sans mb-4 space-y-3'>
       <div className='mb-4'>
         <label className='block text-sm font-medium text-gray-600'>本の名前</label>
-        <input type='text' name='bookname' className='mt-1 p-2 w-full border rounded-md' />
+        <input
+          type='text'
+          value={bookName}
+          onChange={(e) => setBookName(e.target.value)}
+          name='bookname'
+          className='mt-1 p-2 w-full border rounded-md'
+        />
       </div>
       <div className='mt-4'>
         <button
