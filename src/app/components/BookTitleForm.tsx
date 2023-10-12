@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
+import Popup from '../components/Popup';
 
 const BookTitleForm = () => {
   const [bookName, setBookName] = useState('');
+  const [showPopup, setShowPopup] = useState(false);
+  const [popupType, setPopupType] = useState<'success' | 'error' | null>(null);
+  const [popupMessage, setPopupMessage] = useState('');
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -20,36 +24,48 @@ const BookTitleForm = () => {
 
       const data = await response.json();
       if (response.ok) {
-        alert('🎉The page has been created!');
+        setPopupType('success');
+        setPopupMessage('🎉The page has been created!');
+        setShowPopup(true);
       } else {
-        alert(`😭Error : ${data.message}`);
+        setPopupType('error');
+        setPopupMessage(`😭Error: ${data.message}`);
+        setShowPopup(true);
       }
     } catch (error) {
-      alert('😠Communication error occurs');
+      setPopupType('error');
+      setPopupMessage('😠Communication error occurs');
+      setShowPopup(true);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className='font-sans mb-4 space-y-3'>
-      <div className='mb-4'>
-        <label className='block text-sm font-medium text-gray-600'>本の名前</label>
-        <input
-          type='text'
-          value={bookName}
-          onChange={(e) => setBookName(e.target.value)}
-          name='bookname'
-          className='mt-1 p-2 w-full border rounded-md'
-        />
-      </div>
-      <div className='mt-4'>
-        <button
-          type='submit'
-          className='w-full px-4 py-3 text-white bg-blue-600 rounded-md transform hover:bg-blue-400 hover:scale-y-90 duration-0 font-bold'
-        >
-          Notionのページを作成する
-        </button>
-      </div>
-    </form>
+    <div>
+      <form onSubmit={handleSubmit} className='font-sans mb-4 space-y-3'>
+        <div className='mb-4'>
+          <label className='block text-sm font-medium text-gray-600'>本の名前</label>
+          <input
+            type='text'
+            value={bookName}
+            onChange={(e) => setBookName(e.target.value)}
+            name='bookname'
+            className='mt-1 p-2 w-full border rounded-md'
+          />
+        </div>
+        <div className='mt-4'>
+          <button
+            type='submit'
+            className='w-full px-4 py-3 text-white bg-blue-600 rounded-md transform hover:bg-blue-400 hover:scale-y-90 duration-0 font-bold'
+          >
+            Notionのページを作成する
+          </button>
+        </div>
+      </form>
+      {/* Popupの表示 */}
+      {showPopup && (
+        <Popup message={popupMessage} type={popupType} onClose={() => setShowPopup(false)} />
+      )}
+    </div>
   );
 };
 
