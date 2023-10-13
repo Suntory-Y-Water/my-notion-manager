@@ -7,7 +7,7 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    fetch('http://localhost:3000/api/verifyToken')
+    fetch('/api/verifyToken')
       .then((res) => res.json())
       .then((data) => {
         if (data.isValid) {
