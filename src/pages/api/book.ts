@@ -32,12 +32,12 @@ const createNewPage = async (pageTitle: string, highlights: string[], comments: 
       },
     }),
   });
-  const data = await response.json();
+  const data: { id: string; message?: string } = await response.json();
   if (!response.ok) {
     throw new Error(data.message || 'Failed to create a new page.');
   }
 
-  const blocks = highlights.flatMap((highlight, index) => [
+  const blocks: Block[] = highlights.flatMap((highlight, index) => [
     {
       type: 'heading_2',
       heading_2: {
@@ -64,7 +64,7 @@ const createNewPage = async (pageTitle: string, highlights: string[], comments: 
   await appendBlockChildren(data.id, blocks);
 };
 
-const appendBlockChildren = async (pageId: string, blocks: any[]) => {
+const appendBlockChildren = async (pageId: string, blocks: Block[]) => {
   const response = await fetch(`${API_URL}/blocks/${pageId}/children`, {
     method: 'PATCH',
     headers: HEADERS,
@@ -86,8 +86,8 @@ const getBookProperties = async (selectBookName: string) => {
     throw new Error(data.message || 'Failed to fetch data from Notion.');
   }
 
-  const filteredPages = data.results.filter((page: any) => {
-    const bookTitle = page.properties['📙  Book Title'].select.name;
+  const filteredPages = data.results.filter((page: Page) => {
+    const bookTitle: string = page.properties['📙  Book Title'].select.name;
     return bookTitle === selectBookName;
   });
 
@@ -95,11 +95,11 @@ const getBookProperties = async (selectBookName: string) => {
     throw new Error('No pages found with the specified book title.');
   }
 
-  const highlights = filteredPages.flatMap((page: any) =>
-    page.properties['📝  Highlight'].title.map((title: any) => title.plain_text),
+  const highlights: string[] = filteredPages.flatMap((page: Page) =>
+    page.properties['📝  Highlight'].title.map((title: Text) => title.plain_text),
   );
-  const comments = filteredPages.flatMap((page: any) =>
-    page.properties['💬  Comment'].rich_text.map((richText: any) => richText.plain_text),
+  const comments: string[] = filteredPages.flatMap((page: Page) =>
+    page.properties['💬  Comment'].rich_text.map((richText: RichText) => richText.plain_text),
   );
 
   return { highlights, comments };
@@ -110,7 +110,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ message: 'Method not allowed.' });
   }
 
-  const { bookName } = req.body;
+  const bookName: string = req.body;
   try {
     const properties = await getBookProperties(bookName);
     await createNewPage(bookName, properties.highlights, properties.comments);
